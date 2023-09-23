@@ -9,14 +9,10 @@ const cors = require("cors");
 app.use(cors());
 app.use(express.json());
 
+// const uri = `mongodb+srv://${process.env.USER}:${process.env.PASS}@cluster0.x9mq9p5.mongodb.net/?retryWrites=true&w=majority`;
+
 const uri =
   "mongodb+srv://owakeelahmmed:vN3bvP6mQ364N1do@cluster0.x9mq9p5.mongodb.net/?retryWrites=true&w=majority";
-
-// const client = new MongoClient(uri, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-//   serverApi: ServerApiVersion.v1,
-// });
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -31,6 +27,7 @@ const run = async () => {
     const db = client.db("hi-tech");
     const productCollection = db.collection("products");
 
+    //====================================================
     app.get("/products", async (req, res) => {
       const cursor = productCollection.find({});
       const product = await cursor.toArray();
@@ -38,18 +35,19 @@ const run = async () => {
       res.send({ status: true, data: product });
     });
 
+    app.get("/product/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const result = await productCollection.findOne({ _id: new ObjectId(id) });
+
+      res.send({ status: true, data: result });
+    });
+    //====================================================
+
     app.post("/product", async (req, res) => {
       const product = req.body;
 
       const result = await productCollection.insertOne(product);
-
-      res.send(result);
-    });
-
-    app.get("/product/:id", async (req, res) => {
-      const id = req.params.id;
-
-      const result = await productCollection.findOne({ _id: ObjectId(id) });
 
       res.send(result);
     });
